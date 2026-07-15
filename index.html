@@ -1,4 +1,5 @@
 <title>EPC Partner Tracker</title>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <style>
   :root {
     --bg: #eef1f1;
@@ -450,7 +451,12 @@
       <button class="btn btn-ghost btn-icon" id="bulk-close">✕</button>
     </div>
     <div class="field">
-      <label for="bulk-text">Paste rows</label>
+      <label for="bulk-file">Upload a file (.xlsx, .xls, or .csv)</label>
+      <input type="file" id="bulk-file" accept=".csv,.xlsx,.xls" />
+      <select id="bulk-sheet" class="hidden" style="margin-top: 6px;"></select>
+    </div>
+    <div class="field">
+      <label for="bulk-text">…or paste rows directly</label>
       <textarea id="bulk-text" style="min-height: 160px; font-family: var(--font-mono); font-size: 12.5px;" placeholder="Paste from Excel/Sheets (tab-separated) or comma-separated.&#10;Optional header row: Customer, Location, Contact, Title, Email, Phone, LinkedIn, Opportunity, Stage, Source, Last Outreach, Next Follow-up, Notes&#10;Without a header, columns are read as: Customer, Location, Contact, Title, Email, Phone"></textarea>
     </div>
     <div class="field-row">
@@ -605,6 +611,7 @@
   var editingPartnerKey = null;
   var currentBulkPartner = null;
   var _bulkParsedRows = [];
+  var _bulkWorkbook = null;
 
   function load() {
     try {
@@ -972,15 +979,62 @@
 
   function openBulkModal(key) {
     currentBulkPartner = key;
+    _bulkWorkbook = null;
     document.getElementById("bulk-modal-title").textContent = "Bulk add leads — " + state.partners[key].name;
     document.getElementById("bulk-text").value = "";
+    document.getElementById("bulk-file").value = "";
+    document.getElementById("bulk-sheet").classList.add("hidden");
+    document.getElementById("bulk-sheet").innerHTML = "";
     document.getElementById("bulk-stage").value = "prospecting";
     document.getElementById("bulk-source").value = "Target account list";
     updateBulkPreview();
     document.getElementById("bulk-overlay").classList.remove("hidden");
-    document.getElementById("bulk-text").focus();
+    document.getElementById("bulk-file").focus();
   }
   function closeBulkModal() { document.getElementById("bulk-overlay").classList.add("hidden"); currentBulkPartner = null; }
+
+  function loadBulkSheet(name) {
+    if (!_bulkWorkbook) return;
+    var ws = _bulkWorkbook.Sheets[name];
+    var tsv = XLSX.utils.sheet_to_csv(ws, { FS: "\t" });
+    document.getElementById("bulk-text").value = tsv;
+    updateBulkPreview();
+  }
+
+  document.getElementById("bulk-file").addEventListener("change", function (e) {
+    var file = e.target.files[0];
+    if (!file) return;
+    var sheetSelect = document.getElementById("bulk-sheet");
+    if (/\.csv$/i.test(file.name)) {
+      sheetSelect.classList.add("hidden");
+      var textReader = new FileReader();
+      textReader.onload = function () {
+        document.getElementById("bulk-text").value = textReader.result;
+        updateBulkPreview();
+      };
+      textReader.readAsText(file);
+      return;
+    }
+    if (typeof XLSX === "undefined") {
+      showToast("The Excel parser didn't load (needs an internet connection). Try again online, or paste the rows into the box below instead.", true);
+      return;
+    }
+    var binReader = new FileReader();
+    binReader.onload = function (e2) {
+      var data = new Uint8Array(e2.target.result);
+      _bulkWorkbook = XLSX.read(data, { type: "array" });
+      var names = _bulkWorkbook.SheetNames;
+      if (names.length > 1) {
+        sheetSelect.innerHTML = names.map(function (n) { return '<option value="' + n.replace(/"/g, "&quot;") + '">' + n + '</option>'; }).join("");
+        sheetSelect.classList.remove("hidden");
+      } else {
+        sheetSelect.classList.add("hidden");
+      }
+      loadBulkSheet(names[0]);
+    };
+    binReader.readAsArrayBuffer(file);
+  });
+  document.getElementById("bulk-sheet").addEventListener("change", function (e) { loadBulkSheet(e.target.value); });
 
   // ---- lead modal ----
   function openLeadModal(partnerKey, leadId) {
