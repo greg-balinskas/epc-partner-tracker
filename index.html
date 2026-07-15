@@ -1,0 +1,1179 @@
+<title>EPC Partner Tracker</title>
+<style>
+  :root {
+    --bg: #eef1f1;
+    --surface: #ffffff;
+    --surface-2: #e3e8e8;
+    --border: #c8d1d2;
+    --border-strong: #a9b6b8;
+    --text: #172023;
+    --text-muted: #55686c;
+    --text-faint: #8a999c;
+    --accent: #1f6f8b;
+    --accent-strong: #124d61;
+    --accent-soft: #dbeef3;
+    --danger: #a24f3e;
+    --danger-soft: #f3e3df;
+    --font-mono: ui-monospace, "SF Mono", "SFMono-Regular", "IBM Plex Mono", Menlo, Consolas, "Roboto Mono", monospace;
+    --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --radius: 7px;
+    --stage-prospecting: #5b6b6e;
+    --stage-contacted: #2f6fa8;
+    --stage-meeting: #6a4fb0;
+    --stage-quoting: #b1791f;
+    --stage-won: #2f8f5b;
+    --stage-lost: #a24f3e;
+    --stage-hold: #7d7590;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #12181a;
+      --surface: #1a2225;
+      --surface-2: #212b2e;
+      --border: #34474b;
+      --border-strong: #46595d;
+      --text: #e7edee;
+      --text-muted: #9bacaf;
+      --text-faint: #6c7d80;
+      --accent: #4fb3d9;
+      --accent-strong: #7cc8e6;
+      --accent-soft: #1c343c;
+      --danger: #d97b63;
+      --danger-soft: #3a2620;
+      --stage-prospecting: #869597;
+      --stage-contacted: #5b9fd6;
+      --stage-meeting: #a58ce0;
+      --stage-quoting: #dba845;
+      --stage-won: #4bbf7d;
+      --stage-lost: #d97b63;
+      --stage-hold: #a79bc4;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #12181a; --surface: #1a2225; --surface-2: #212b2e; --border: #34474b;
+    --border-strong: #46595d; --text: #e7edee; --text-muted: #9bacaf; --text-faint: #6c7d80;
+    --accent: #4fb3d9; --accent-strong: #7cc8e6; --accent-soft: #1c343c;
+    --danger: #d97b63; --danger-soft: #3a2620;
+    --stage-prospecting: #869597; --stage-contacted: #5b9fd6; --stage-meeting: #a58ce0;
+    --stage-quoting: #dba845; --stage-won: #4bbf7d; --stage-lost: #d97b63; --stage-hold: #a79bc4;
+  }
+  :root[data-theme="light"] {
+    --bg: #eef1f1; --surface: #ffffff; --surface-2: #e3e8e8; --border: #c8d1d2;
+    --border-strong: #a9b6b8; --text: #172023; --text-muted: #55686c; --text-faint: #8a999c;
+    --accent: #1f6f8b; --accent-strong: #124d61; --accent-soft: #dbeef3;
+    --danger: #a24f3e; --danger-soft: #f3e3df;
+    --stage-prospecting: #5b6b6e; --stage-contacted: #2f6fa8; --stage-meeting: #6a4fb0;
+    --stage-quoting: #b1791f; --stage-won: #2f8f5b; --stage-lost: #a24f3e; --stage-hold: #7d7590;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+
+  a { color: var(--accent); }
+
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+  }
+
+  button, input, select, textarea { font-family: inherit; font-size: inherit; color: inherit; }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    border: 1px solid var(--border-strong);
+    background: var(--surface);
+    color: var(--text);
+    padding: 7px 12px;
+    border-radius: var(--radius);
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .btn:hover { border-color: var(--accent); }
+  .btn:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, [tabindex]:focus-visible {
+    outline: 2px solid var(--accent); outline-offset: 2px;
+  }
+  .btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn-primary:hover { background: var(--accent-strong); border-color: var(--accent-strong); }
+  .btn-ghost { border-color: transparent; background: transparent; }
+  .btn-ghost:hover { background: var(--surface-2); border-color: transparent; }
+  .btn-danger { color: var(--danger); }
+  .btn-sm { padding: 4px 9px; font-size: 12.5px; }
+  .btn-icon { padding: 6px; }
+
+  input[type="text"], input[type="email"], input[type="tel"], input[type="date"], input[type="url"], select, textarea {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    padding: 8px 10px;
+    color: var(--text);
+  }
+  textarea { resize: vertical; min-height: 64px; font-family: var(--font-sans); }
+  label { display: block; font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 4px; }
+  .field { margin-bottom: 12px; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  /* ---- App shell ---- */
+  #app { display: flex; flex-direction: column; height: 100vh; }
+
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px;
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    flex-shrink: 0;
+  }
+  .brand { display: flex; align-items: baseline; gap: 10px; }
+  .brand-mark {
+    font-family: var(--font-mono); font-weight: 700; font-size: 13px;
+    letter-spacing: 0.08em;
+    background: var(--accent-soft); color: var(--accent-strong);
+    padding: 3px 7px; border-radius: 4px;
+  }
+  .brand-title { font-weight: 600; font-size: 15px; }
+  .brand-sub { color: var(--text-muted); font-size: 12px; }
+  .topbar-actions { display: flex; gap: 8px; align-items: center; }
+
+  .shell { flex: 1; display: flex; min-height: 0; }
+
+  .sidebar {
+    width: 250px; flex-shrink: 0;
+    border-right: 1px solid var(--border);
+    background: var(--surface);
+    overflow-y: auto;
+    padding: 10px 0 80px;
+  }
+  .sidebar-search { padding: 4px 12px 10px; position: sticky; top: 0; background: var(--surface); z-index: 2; }
+  .nav-section-label {
+    font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase;
+    color: var(--text-faint); padding: 10px 14px 4px;
+  }
+  .nav-item {
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    padding: 8px 14px;
+    cursor: pointer;
+    border-left: 2px solid transparent;
+  }
+  .nav-item:hover { background: var(--surface-2); }
+  .nav-item.active { background: var(--accent-soft); border-left-color: var(--accent); }
+  .nav-item.active .nav-item-name { color: var(--accent-strong); font-weight: 600; }
+  .nav-item-name { font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .nav-count {
+    font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);
+    background: var(--surface-2); border-radius: 999px; padding: 1px 7px; flex-shrink: 0;
+    font-variant-numeric: tabular-nums;
+  }
+  .nav-item.active .nav-count { background: var(--surface); }
+  .nav-badge {
+    font-family: var(--font-mono); font-size: 10px; font-weight: 700; flex-shrink: 0;
+    color: var(--danger); background: var(--danger-soft); border-radius: 999px; padding: 1px 6px;
+  }
+  .add-partner-row { padding: 10px 14px 2px; }
+
+  main.content { flex: 1; overflow-y: auto; padding: 22px 26px 60px; min-width: 0; }
+  .content-inner { max-width: 1040px; margin: 0 auto; }
+
+  .storage-note {
+    display: flex; align-items: flex-start; gap: 10px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: var(--radius);
+    padding: 10px 14px; margin-bottom: 18px;
+    font-size: 12.5px; color: var(--text-muted);
+  }
+  .storage-note strong { color: var(--text); }
+  .storage-note .close-note { margin-left: auto; flex-shrink: 0; }
+
+  /* ---- Overview ---- */
+  .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 22px; }
+  .kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 14px 16px; }
+  .kpi-value { font-family: var(--font-mono); font-size: 26px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .kpi-label { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+  h1 { font-size: 19px; margin: 0 0 4px; }
+  h2 { font-size: 15px; margin: 0 0 12px; }
+  .section { margin-bottom: 26px; }
+  .subtle { color: var(--text-muted); font-size: 12.5px; }
+
+  .partner-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+  .partner-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 12px 14px; cursor: pointer;
+  }
+  .partner-card:hover { border-color: var(--accent); }
+  .partner-card-name { font-weight: 600; font-size: 13.5px; margin-bottom: 6px; }
+  .partner-card-stats { display: flex; gap: 10px; font-family: var(--font-mono); font-size: 11.5px; color: var(--text-muted); }
+
+  .followup-list { display: flex; flex-direction: column; gap: 6px; }
+  .followup-row {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 9px 12px; cursor: pointer;
+  }
+  .followup-row:hover { border-color: var(--accent); }
+  .followup-date { font-family: var(--font-mono); font-size: 12px; font-variant-numeric: tabular-nums; width: 84px; flex-shrink: 0; }
+  .followup-who { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; }
+  .followup-partner { font-size: 11.5px; color: var(--text-muted); flex-shrink: 0; }
+
+  /* ---- Partner header ---- */
+  .partner-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 18px; }
+  .partner-title-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .partner-meta { color: var(--text-muted); font-size: 12.5px; margin-top: 4px; }
+  .partner-meta a { color: var(--text-muted); text-decoration: underline; text-decoration-color: var(--border-strong); }
+  .partner-blurb { margin-top: 8px; font-size: 13px; color: var(--text-muted); max-width: 640px; }
+  .cert-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .cert-pill {
+    font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.03em;
+    background: var(--surface-2); color: var(--text-muted); border-radius: 4px; padding: 2px 7px;
+  }
+  .partner-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+  .toolbar { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; align-items: center; }
+  .toolbar input[type="text"] { max-width: 240px; }
+  .toolbar select { max-width: 170px; }
+  .toolbar .spacer { flex: 1; }
+
+  /* ---- Table ---- */
+  .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+  table { width: 100%; border-collapse: collapse; min-width: 760px; }
+  thead th {
+    text-align: left; font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--text-faint); font-weight: 600; padding: 9px 12px; border-bottom: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  tbody td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; font-size: 13px; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr { cursor: pointer; }
+  tbody tr:hover { background: var(--surface-2); }
+  .cell-primary { font-weight: 600; }
+  .cell-muted { color: var(--text-muted); font-size: 12px; }
+  .cell-date { font-family: var(--font-mono); font-size: 12px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .cell-actions { white-space: nowrap; text-align: right; }
+
+  .stage-pill {
+    display: inline-block; font-family: var(--font-mono); font-size: 11px; font-weight: 600;
+    padding: 3px 9px; border-radius: 999px; white-space: nowrap;
+  }
+  .due-flag { font-family: var(--font-mono); font-size: 10.5px; font-weight: 700; margin-left: 6px; padding: 1px 6px; border-radius: 999px; }
+  .due-overdue { background: var(--danger-soft); color: var(--danger); }
+  .due-soon { background: var(--accent-soft); color: var(--accent-strong); }
+
+  .empty-state { padding: 40px 20px; text-align: center; color: var(--text-muted); }
+
+  /* ---- Modal ---- */
+  .overlay {
+    position: fixed; inset: 0; background: rgba(10, 14, 15, 0.5);
+    display: flex; align-items: flex-start; justify-content: center; padding: 40px 16px;
+    overflow-y: auto; z-index: 50;
+  }
+  .modal {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    width: 100%; max-width: 560px; padding: 20px 22px 22px;
+  }
+  .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+  .modal-title { font-size: 15px; font-weight: 600; }
+  .modal-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--border); }
+  .modal-footer-right { display: flex; gap: 8px; }
+
+  .hidden { display: none !important; }
+
+  .confirm-message { font-size: 13px; color: var(--text-muted); margin-bottom: 4px; }
+
+  #toast {
+    position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%);
+    background: var(--surface); border: 1px solid var(--border-strong);
+    border-left: 3px solid var(--accent);
+    padding: 10px 16px; border-radius: var(--radius);
+    box-shadow: 0 6px 20px rgba(10, 14, 15, 0.18);
+    font-size: 13px; z-index: 100; max-width: 90vw;
+  }
+  #toast.toast-error { border-left-color: var(--danger); }
+
+  @media (max-width: 860px) {
+    .shell { flex-direction: column; }
+    .sidebar {
+      width: 100%; border-right: none; border-bottom: 1px solid var(--border);
+      display: flex; flex-direction: column; padding: 8px 0;
+      max-height: 40vh;
+    }
+    .kpi-row { grid-template-columns: repeat(2, 1fr); }
+    main.content { padding: 16px 14px 40px; }
+    .partner-header { flex-direction: column; }
+    .field-row { grid-template-columns: 1fr; }
+    .topbar { padding: 10px 12px; flex-wrap: wrap; }
+    .brand-sub { display: none; }
+  }
+</style>
+
+<div id="app">
+  <div class="topbar">
+    <div class="brand">
+      <span class="brand-mark">EPC</span>
+      <span class="brand-title">Partner Tracker</span>
+      <span class="brand-sub">Engineered Production Components — live prospecting board</span>
+    </div>
+    <div class="topbar-actions">
+      <button class="btn btn-sm" id="btn-export" title="Download all data as a JSON backup">Export</button>
+      <button class="btn btn-sm" id="btn-import" title="Restore from a JSON backup">Import</button>
+      <input type="file" id="file-import" accept="application/json" class="hidden" />
+    </div>
+  </div>
+
+  <div class="shell">
+    <nav class="sidebar" id="sidebar"></nav>
+    <main class="content"><div class="content-inner" id="content"></div></main>
+  </div>
+</div>
+
+<div class="overlay hidden" id="lead-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="lead-modal-title">Add lead</div>
+      <button class="btn btn-ghost btn-icon" id="lead-close">✕</button>
+    </div>
+    <form id="lead-form">
+      <div class="field-row">
+        <div class="field"><label for="f-customer">Customer *</label><input type="text" id="f-customer" required /></div>
+        <div class="field"><label for="f-location">Location</label><input type="text" id="f-location" placeholder="e.g. CT" /></div>
+      </div>
+      <div class="field"><label for="f-opportunity">Opportunity name</label><input type="text" id="f-opportunity" /></div>
+      <div class="field-row">
+        <div class="field"><label for="f-contact">Contact name</label><input type="text" id="f-contact" /></div>
+        <div class="field"><label for="f-title">Title</label><input type="text" id="f-title" /></div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label for="f-email">Email</label><input type="text" id="f-email" /></div>
+        <div class="field"><label for="f-phone">Phone</label><input type="text" id="f-phone" /></div>
+      </div>
+      <div class="field"><label for="f-linkedin">LinkedIn URL</label><input type="text" id="f-linkedin" /></div>
+      <div class="field-row">
+        <div class="field">
+          <label for="f-stage">Stage</label>
+          <select id="f-stage">
+            <option value="prospecting">Prospecting</option>
+            <option value="contacted">Contacted</option>
+            <option value="meeting">Meeting scheduled</option>
+            <option value="quoting">Quoting / sampling</option>
+            <option value="won">Won</option>
+            <option value="lost">Lost</option>
+            <option value="hold">On hold</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="f-source">Source</label>
+          <select id="f-source">
+            <option>ZoomInfo</option>
+            <option>Target account list</option>
+            <option>Referral</option>
+            <option>Cold outreach</option>
+            <option>Inbound</option>
+            <option>Trade show</option>
+            <option>Existing relationship</option>
+            <option>Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field"><label for="f-last">Last outreach</label><input type="date" id="f-last" /></div>
+        <div class="field"><label for="f-next">Next follow-up</label><input type="date" id="f-next" /></div>
+      </div>
+      <div class="field"><label for="f-notes">Notes</label><textarea id="f-notes"></textarea></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger btn-ghost hidden" id="lead-delete">Delete lead</button>
+        <div class="modal-footer-right">
+          <button type="button" class="btn" id="lead-cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="overlay hidden" id="partner-overlay">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="partner-modal-title">Add partner</div>
+      <button class="btn btn-ghost btn-icon" id="partner-close">✕</button>
+    </div>
+    <form id="partner-form">
+      <div class="field"><label for="p-name">Partner name *</label><input type="text" id="p-name" required /></div>
+      <div class="field-row">
+        <div class="field"><label for="p-website">Website</label><input type="text" id="p-website" placeholder="https://" /></div>
+        <div class="field"><label for="p-region">Region</label><input type="text" id="p-region" placeholder="e.g. USA – East Coast" /></div>
+      </div>
+      <div class="field"><label for="p-blurb">One-line capability summary</label><input type="text" id="p-blurb" /></div>
+      <div class="field"><label for="p-certs">Certifications (comma separated)</label><input type="text" id="p-certs" placeholder="ISO 9001, ITAR" /></div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-danger btn-ghost hidden" id="partner-delete">Delete partner</button>
+        <div class="modal-footer-right">
+          <button type="button" class="btn" id="partner-cancel">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="overlay hidden" id="confirm-overlay">
+  <div class="modal" style="max-width: 420px;">
+    <div class="modal-header">
+      <div class="modal-title" id="confirm-title">Confirm</div>
+    </div>
+    <div class="confirm-message" id="confirm-message"></div>
+    <div class="modal-footer" style="justify-content: flex-end;">
+      <button type="button" class="btn" id="confirm-cancel">Cancel</button>
+      <button type="button" class="btn btn-primary" id="confirm-ok">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay hidden" id="bulk-overlay">
+  <div class="modal" style="max-width: 640px;">
+    <div class="modal-header">
+      <div class="modal-title" id="bulk-modal-title">Bulk add leads</div>
+      <button class="btn btn-ghost btn-icon" id="bulk-close">✕</button>
+    </div>
+    <div class="field">
+      <label for="bulk-text">Paste rows</label>
+      <textarea id="bulk-text" style="min-height: 160px; font-family: var(--font-mono); font-size: 12.5px;" placeholder="Paste from Excel/Sheets (tab-separated) or comma-separated.&#10;Optional header row: Customer, Location, Contact, Title, Email, Phone, LinkedIn, Opportunity, Stage, Source, Last Outreach, Next Follow-up, Notes&#10;Without a header, columns are read as: Customer, Location, Contact, Title, Email, Phone"></textarea>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label for="bulk-stage">Default stage (used where a row has no Stage)</label>
+        <select id="bulk-stage">
+          <option value="prospecting">Prospecting</option>
+          <option value="contacted">Contacted</option>
+          <option value="meeting">Meeting scheduled</option>
+          <option value="quoting">Quoting / sampling</option>
+          <option value="won">Won</option>
+          <option value="lost">Lost</option>
+          <option value="hold">On hold</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="bulk-source">Default source (used where a row has no Source)</label>
+        <select id="bulk-source">
+          <option>Target account list</option>
+          <option>ZoomInfo</option>
+          <option>Referral</option>
+          <option>Cold outreach</option>
+          <option>Inbound</option>
+          <option>Trade show</option>
+          <option>Existing relationship</option>
+          <option>Other</option>
+        </select>
+      </div>
+    </div>
+    <div class="subtle" id="bulk-preview" style="margin-bottom: 8px;">Paste rows above to see a preview.</div>
+    <div class="modal-footer" style="justify-content: flex-end;">
+      <button type="button" class="btn" id="bulk-cancel">Cancel</button>
+      <button type="button" class="btn btn-primary" id="bulk-confirm" disabled>Add leads</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="hidden" role="status"></div>
+
+<script>
+(function () {
+  "use strict";
+
+  var STORAGE_KEY = "epc_partner_tracker_v1";
+  var NOTE_DISMISS_KEY = "epc_partner_tracker_note_dismissed";
+
+  var STAGES = {
+    prospecting: { label: "Prospecting", color: "var(--stage-prospecting)" },
+    contacted: { label: "Contacted", color: "var(--stage-contacted)" },
+    meeting: { label: "Meeting scheduled", color: "var(--stage-meeting)" },
+    quoting: { label: "Quoting / sampling", color: "var(--stage-quoting)" },
+    won: { label: "Won", color: "var(--stage-won)" },
+    lost: { label: "Lost", color: "var(--stage-lost)" },
+    hold: { label: "On hold", color: "var(--stage-hold)" }
+  };
+
+  function lead(fields) {
+    return Object.assign({
+      id: uid(), customer: "", location: "", opportunity: "", contact: "", title: "",
+      email: "", phone: "", linkedin: "", stage: "prospecting", source: "ZoomInfo",
+      lastOutreach: "", nextFollowUp: "", notes: ""
+    }, fields);
+  }
+
+  function seedData() {
+    return {
+      phoenix: {
+        name: "Phoenix Sintered Metals", website: "https://www.phoenixsintered.com", region: "USA – East Coast",
+        blurb: "High-volume powdered metal components — CNC pressing, warm compaction, high-temp sintering.",
+        certs: ["ISO 9001", "IATF 16949", "ITAR"], leads: []
+      },
+      ebway: {
+        name: "EBway", website: "https://www.ebway.com", region: "USA – East Coast",
+        blurb: "Precision metal stamping — fully-sheared, straight-cut edges, tight tolerances.",
+        certs: ["ISO 9001", "IATF 16949", "ITAR", "Woman Owned"], leads: []
+      },
+      azoth: {
+        name: "Azoth", website: "https://www.azoth3d.com", region: "USA – Midwest",
+        blurb: "Binder jetting metal 3D printing and lithography metal manufacturing for on-demand precision parts.",
+        certs: ["ISO 9001", "ISO 13485"], leads: []
+      },
+      oechsler: {
+        name: "Oechsler Health", website: "https://www.oechsler-health.com", region: "Global",
+        blurb: "Global contract manufacturer for medical devices, diagnostics, and drug delivery systems.",
+        certs: ["ISO 9001", "ISO 13485"], leads: []
+      },
+      moldtech: {
+        name: "Moldtech", website: "https://www.moldtechrubber.com", region: "USA – East Coast",
+        blurb: "Rubber and silicone molding — compression, LSR/HCR, overmolding and bonding.",
+        certs: ["ISO 9001", "ISO 13485", "IATF 16949"], leads: []
+      },
+      lasermed: {
+        name: "LaserMed Technologies", website: "https://www.lasermedtech.com", region: "USA – Midwest",
+        blurb: "Laser processing, Nitinol shape-setting, metal 3D printing, precision cleaning & passivation.",
+        certs: ["ISO 13485", "Class 7 Cleanroom"], leads: []
+      },
+      springfield: {
+        name: "Springfield Spring & Stamping", website: "https://www.springfieldspring.com", region: "USA – East Coast",
+        blurb: "Custom springs, wireforms, and fourslide stampings since 1942.",
+        certs: ["ISO 9001", "ISO 13485", "ITAR", "Minority Owned"], leads: []
+      },
+      herold: {
+        name: "Herold Precision Metals", website: "https://www.heroldprecision.com", region: "USA – Midwest",
+        blurb: "Precision sheet metal fabrication with value-added assembly for high-mix, low-volume work.",
+        certs: ["ISO 9001", "ITAR", "RoHS"], leads: []
+      },
+      polo: {
+        name: "Polo Custom Products", website: "https://www.polocustomproducts.com", region: "USA – Midwest",
+        blurb: "Custom industrial sewing, film/fabric welding, and thermoforming for medical and defense.",
+        certs: ["ISO 9001", "ISO 13485", "ITAR", "HUBZone"], leads: []
+      },
+      merlin: {
+        name: "Merlin Mold & Manufacturing", website: "https://www.merlinmoldmfg.com", region: "USA – East Coast",
+        blurb: "Full-service injection molding, machining, and value-added assembly.",
+        certs: ["ISO 9001", "ITAR", "FFL", "UL & FM"], leads: []
+      },
+      dimax: {
+        name: "DiMax Corporation", website: "https://www.dimaxcorp.com", region: "USA – Midwest",
+        blurb: "Die cutting, CNC/laser routing, and reaction injection molding of non-metallic materials.",
+        certs: ["ISO 9001", "ITAR / DDTC"], leads: []
+      },
+      liquidmetal: {
+        name: "Liquidmetal Technologies", website: "https://www.liquidmetal.com", region: "USA – West Coast",
+        blurb: "Amorphous metal molding — bulk metallic glass and metal injection molding.",
+        certs: [], leads: []
+      },
+      managed: {
+        name: "Managed Programs", website: "https://www.managed-programs.com", region: "USA – Midwest",
+        blurb: "Carbon composite molding and low-volume injection molding for medical, automotive, and marine.",
+        certs: [], leads: []
+      },
+      unassigned: {
+        name: "Other / Unassigned", website: "", region: "",
+        blurb: "Contacts pitched with a partner not yet on your active list, or general multi-partner outreach.",
+        certs: [], leads: []
+      }
+    };
+  }
+
+  var PARTNER_ORDER = ["phoenix", "ebway", "azoth", "oechsler", "moldtech", "lasermed", "springfield",
+    "herold", "polo", "merlin", "dimax", "liquidmetal", "managed", "unassigned"];
+
+  function uid() { return Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4); }
+
+  // ---- state ----
+  var state = load();
+  var activeKey = "overview";
+  var partnerSearch = "";
+  var partnerFilterStage = "";
+  var editingLeadId = null;
+  var editingLeadPartner = null;
+  var editingPartnerKey = null;
+  var currentBulkPartner = null;
+  var _bulkParsedRows = [];
+
+  function load() {
+    try {
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if (raw) {
+        var parsed = JSON.parse(raw);
+        if (parsed && parsed.partners && parsed.order) return parsed;
+      }
+    } catch (e) {}
+    var seeded = { partners: seedData(), order: PARTNER_ORDER.slice() };
+    persist(seeded);
+    return seeded;
+  }
+  function persist(s) { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); }
+  function save() { persist(state); }
+
+  function partnerLeadCount(key) { return state.partners[key].leads.length; }
+
+  function daysUntil(dateStr) {
+    if (!dateStr) return null;
+    var today = new Date(); today.setHours(0, 0, 0, 0);
+    var d = new Date(dateStr + "T00:00:00");
+    return Math.round((d - today) / 86400000);
+  }
+  function fmtDate(dateStr) {
+    if (!dateStr) return "—";
+    var d = new Date(dateStr + "T00:00:00");
+    return d.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+  }
+
+  function stagePillHtml(stageKey) {
+    var s = STAGES[stageKey] || STAGES.prospecting;
+    return '<span class="stage-pill" style="color:' + s.color + ';background:color-mix(in srgb, ' + s.color + ' 16%, var(--surface))">' + esc(s.label) + '</span>';
+  }
+
+  function esc(str) {
+    return String(str == null ? "" : str).replace(/[&<>"']/g, function (c) {
+      return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+    });
+  }
+
+  // ---- custom confirm / toast (Artifacts sandbox blocks native confirm()/alert()) ----
+  var _confirmCallback = null;
+  function customConfirm(message, onYes) {
+    document.getElementById("confirm-message").textContent = message;
+    document.getElementById("confirm-overlay").classList.remove("hidden");
+    _confirmCallback = onYes;
+  }
+  function closeConfirm() { document.getElementById("confirm-overlay").classList.add("hidden"); _confirmCallback = null; }
+  var _toastTimer = null;
+  function showToast(message, isError) {
+    var t = document.getElementById("toast");
+    t.textContent = message;
+    t.classList.toggle("toast-error", !!isError);
+    t.classList.remove("hidden");
+    clearTimeout(_toastTimer);
+    _toastTimer = setTimeout(function () { t.classList.add("hidden"); }, 4000);
+  }
+
+  // ---- rendering ----
+  function renderAll() { renderSidebar(); renderContent(); }
+
+  function renderSidebar() {
+    var el = document.getElementById("sidebar");
+    var html = '<div class="sidebar-search"><input type="text" id="sidebar-filter" placeholder="Filter partners…" value="' + esc(partnerSearch) + '" /></div>';
+    html += '<div class="nav-item' + (activeKey === "overview" ? " active" : "") + '" data-nav="overview"><span class="nav-item-name">Overview</span></div>';
+    html += '<div class="nav-section-label">Manufacturing partners</div>';
+
+    var q = partnerSearch.trim().toLowerCase();
+    state.order.forEach(function (key) {
+      var p = state.partners[key];
+      if (!p) return;
+      if (q && p.name.toLowerCase().indexOf(q) === -1) return;
+      var overdue = p.leads.filter(function (l) { var d = daysUntil(l.nextFollowUp); return d !== null && d < 0; }).length;
+      html += '<div class="nav-item' + (activeKey === key ? " active" : "") + '" data-nav="' + key + '">' +
+        '<span class="nav-item-name">' + esc(p.name) + '</span>' +
+        '<span style="display:flex;align-items:center;gap:6px;">' +
+        (overdue ? '<span class="nav-badge">' + overdue + '</span>' : '') +
+        '<span class="nav-count">' + p.leads.length + '</span></span></div>';
+    });
+
+    html += '<div class="add-partner-row"><button class="btn btn-sm" id="btn-add-partner" style="width:100%">+ Add partner</button></div>';
+    el.innerHTML = html;
+
+    document.getElementById("sidebar-filter").addEventListener("input", function (e) {
+      partnerSearch = e.target.value; renderSidebar();
+    });
+    el.querySelectorAll(".nav-item[data-nav]").forEach(function (n) {
+      n.addEventListener("click", function () {
+        activeKey = n.getAttribute("data-nav");
+        partnerFilterStage = ""; renderAll();
+      });
+    });
+    document.getElementById("btn-add-partner").addEventListener("click", function () { openPartnerModal(null); });
+  }
+
+  function renderContent() {
+    var el = document.getElementById("content");
+    if (activeKey === "overview") { el.innerHTML = overviewHtml(); bindOverview(); return; }
+    var p = state.partners[activeKey];
+    if (!p) { activeKey = "overview"; el.innerHTML = overviewHtml(); bindOverview(); return; }
+    el.innerHTML = partnerHtml(activeKey, p);
+    bindPartnerView(activeKey);
+  }
+
+  function storageNoteHtml() {
+    if (localStorage.getItem(NOTE_DISMISS_KEY)) return "";
+    return '<div class="storage-note" id="storage-note">' +
+      '<span>💾</span>' +
+      '<span><strong>This is v1 — data lives in this browser only.</strong> It will not show up on your phone or another computer yet. Use <strong>Export</strong> in the top bar to save a backup, especially before we wire up real cross-device sync.</span>' +
+      '<button class="btn btn-ghost btn-icon close-note" id="dismiss-note">✕</button>' +
+      '</div>';
+  }
+
+  function overviewHtml() {
+    var allLeads = [];
+    state.order.forEach(function (key) {
+      state.partners[key].leads.forEach(function (l) { allLeads.push(Object.assign({ _partner: key }, l)); });
+    });
+    var stageCounts = {};
+    Object.keys(STAGES).forEach(function (k) { stageCounts[k] = 0; });
+    allLeads.forEach(function (l) { stageCounts[l.stage] = (stageCounts[l.stage] || 0) + 1; });
+
+    var overdue = allLeads.filter(function (l) { var d = daysUntil(l.nextFollowUp); return d !== null && d < 0; });
+    var dueSoon = allLeads.filter(function (l) { var d = daysUntil(l.nextFollowUp); return d !== null && d >= 0 && d <= 7; });
+    var upcoming = overdue.concat(dueSoon).sort(function (a, b) { return (a.nextFollowUp || "").localeCompare(b.nextFollowUp || ""); });
+
+    var html = storageNoteHtml();
+    html += '<h1>Overview</h1><div class="subtle" style="margin-bottom:20px;">Across ' + state.order.length + ' manufacturing partners</div>';
+
+    html += '<div class="kpi-row">' +
+      kpi(allLeads.length, "Total leads / opportunities") +
+      kpi(stageCounts.meeting + stageCounts.quoting, "Meeting or quoting") +
+      kpi(stageCounts.won, "Won") +
+      kpi(overdue.length, "Follow-ups overdue") +
+      '</div>';
+
+    html += '<div class="section"><h2>Follow-ups due (next 7 days, or overdue)</h2>';
+    if (upcoming.length === 0) {
+      html += '<div class="subtle">Nothing due. Set next follow-up dates on your leads to see them tracked here.</div>';
+    } else {
+      html += '<div class="followup-list">';
+      upcoming.forEach(function (l) {
+        var d = daysUntil(l.nextFollowUp);
+        var tag = d < 0 ? '<span class="due-flag due-overdue">' + Math.abs(d) + 'd overdue</span>' : (d <= 3 ? '<span class="due-flag due-soon">due soon</span>' : '');
+        html += '<div class="followup-row" data-open-partner="' + l._partner + '" data-open-lead="' + l.id + '">' +
+          '<span class="followup-date">' + fmtDate(l.nextFollowUp) + '</span>' +
+          '<span class="followup-who">' + esc(l.contact || l.customer) + (l.customer ? ' · ' + esc(l.customer) : '') + '</span>' +
+          tag +
+          '<span class="followup-partner">' + esc(state.partners[l._partner].name) + '</span>' +
+          '</div>';
+      });
+      html += '</div>';
+    }
+    html += '</div>';
+
+    html += '<div class="section"><h2>Partners</h2><div class="partner-grid">';
+    state.order.forEach(function (key) {
+      var p = state.partners[key];
+      var won = p.leads.filter(function (l) { return l.stage === "won"; }).length;
+      html += '<div class="partner-card" data-open-partner="' + key + '">' +
+        '<div class="partner-card-name">' + esc(p.name) + '</div>' +
+        '<div class="partner-card-stats"><span>' + p.leads.length + ' leads</span><span>' + won + ' won</span></div>' +
+        '</div>';
+    });
+    html += '</div></div>';
+
+    return html;
+  }
+
+  function kpi(value, label) {
+    return '<div class="kpi-card"><div class="kpi-value">' + value + '</div><div class="kpi-label">' + esc(label) + '</div></div>';
+  }
+
+  function bindOverview() {
+    var noteBtn = document.getElementById("dismiss-note");
+    if (noteBtn) noteBtn.addEventListener("click", function () {
+      localStorage.setItem(NOTE_DISMISS_KEY, "1");
+      document.getElementById("storage-note").remove();
+    });
+    document.querySelectorAll("[data-open-partner]").forEach(function (n) {
+      n.addEventListener("click", function () {
+        activeKey = n.getAttribute("data-open-partner");
+        renderAll();
+        var leadId = n.getAttribute("data-open-lead");
+        if (leadId) setTimeout(function () { openLeadModal(activeKey, leadId); }, 0);
+      });
+    });
+  }
+
+  function partnerHtml(key, p) {
+    var html = storageNoteHtml();
+    html += '<div class="partner-header"><div>' +
+      '<div class="partner-title-row"><h1 style="margin:0;">' + esc(p.name) + '</h1></div>' +
+      '<div class="partner-meta">' + (p.region ? esc(p.region) : "") + (p.website ? (p.region ? " · " : "") + '<a href="' + esc(p.website) + '" target="_blank" rel="noopener">' + esc(p.website.replace(/^https?:\/\//, "")) + '</a>' : "") + '</div>' +
+      (p.blurb ? '<div class="partner-blurb">' + esc(p.blurb) + '</div>' : "") +
+      (p.certs && p.certs.length ? '<div class="cert-row">' + p.certs.map(function (c) { return '<span class="cert-pill">' + esc(c) + '</span>'; }).join("") + '</div>' : "") +
+      '</div><div class="partner-actions">' +
+      '<button class="btn btn-sm" id="btn-edit-partner">Edit</button>' +
+      '<button class="btn btn-sm" id="btn-bulk-add">Bulk add</button>' +
+      '<button class="btn btn-sm btn-primary" id="btn-add-lead">+ Add lead</button>' +
+      '</div></div>';
+
+    html += '<div class="toolbar">' +
+      '<input type="text" id="lead-filter" placeholder="Search customer, contact, opportunity…" value="' + esc(partnerSearch === "__leadfilter__" ? "" : "") + '" />' +
+      '<select id="stage-filter"><option value="">All stages</option>' +
+      Object.keys(STAGES).map(function (k) { return '<option value="' + k + '"' + (partnerFilterStage === k ? " selected" : "") + '>' + STAGES[k].label + '</option>'; }).join("") +
+      '</select><div class="spacer"></div><div class="subtle">' + p.leads.length + ' lead' + (p.leads.length === 1 ? "" : "s") + '</div></div>';
+
+    var leads = p.leads.slice();
+    if (partnerFilterStage) leads = leads.filter(function (l) { return l.stage === partnerFilterStage; });
+
+    if (leads.length === 0) {
+      html += '<div class="table-wrap"><div class="empty-state">No leads yet in ' + esc(p.name) + '. Click <strong>+ Add lead</strong> to start tracking a customer or contact.</div></div>';
+    } else {
+      html += '<div class="table-wrap"><table><thead><tr>' +
+        '<th>Customer</th><th>Contact</th><th>Opportunity</th><th>Stage</th><th>Last outreach</th><th>Next follow-up</th><th>Source</th>' +
+        '</tr></thead><tbody id="lead-rows">';
+      leads.forEach(function (l) {
+        var d = daysUntil(l.nextFollowUp);
+        var flag = d === null ? "" : d < 0 ? '<span class="due-flag due-overdue">' + Math.abs(d) + 'd overdue</span>' : d <= 3 ? '<span class="due-flag due-soon">due soon</span>' : "";
+        html += '<tr data-lead-id="' + l.id + '">' +
+          '<td class="cell-primary">' + esc(l.customer) + (l.location ? ' <span class="cell-muted" style="font-weight:400">· ' + esc(l.location) + '</span>' : '') + '</td>' +
+          '<td>' + esc(l.contact) + (l.title ? '<div class="cell-muted">' + esc(l.title) + '</div>' : "") + '</td>' +
+          '<td>' + esc(l.opportunity) + '</td>' +
+          '<td>' + stagePillHtml(l.stage) + '</td>' +
+          '<td class="cell-date">' + fmtDate(l.lastOutreach) + '</td>' +
+          '<td class="cell-date">' + fmtDate(l.nextFollowUp) + flag + '</td>' +
+          '<td class="cell-muted">' + esc(l.source) + '</td>' +
+          '</tr>';
+      });
+      html += '</tbody></table></div>';
+    }
+    return html;
+  }
+
+  function bindPartnerView(key) {
+    var noteBtn = document.getElementById("dismiss-note");
+    if (noteBtn) noteBtn.addEventListener("click", function () {
+      localStorage.setItem(NOTE_DISMISS_KEY, "1");
+      document.getElementById("storage-note").remove();
+    });
+    document.getElementById("btn-add-lead").addEventListener("click", function () { openLeadModal(key, null); });
+    document.getElementById("btn-edit-partner").addEventListener("click", function () { openPartnerModal(key); });
+    document.getElementById("btn-bulk-add").addEventListener("click", function () { openBulkModal(key); });
+    document.getElementById("stage-filter").addEventListener("change", function (e) {
+      partnerFilterStage = e.target.value; renderContent();
+    });
+    var filterInput = document.getElementById("lead-filter");
+    filterInput.addEventListener("input", function (e) { filterLeadRows(e.target.value); });
+    var rows = document.getElementById("lead-rows");
+    if (rows) {
+      rows.querySelectorAll("tr[data-lead-id]").forEach(function (tr) {
+        tr.addEventListener("click", function () { openLeadModal(key, tr.getAttribute("data-lead-id")); });
+      });
+    }
+  }
+
+  function filterLeadRows(q) {
+    q = q.trim().toLowerCase();
+    var rows = document.querySelectorAll("#lead-rows tr[data-lead-id]");
+    rows.forEach(function (tr) {
+      var text = tr.textContent.toLowerCase();
+      tr.style.display = !q || text.indexOf(q) !== -1 ? "" : "none";
+    });
+  }
+
+  // ---- bulk add ----
+  var BULK_FIELD_ALIASES = {
+    customer: ["customer", "company", "company name", "account", "account name"],
+    location: ["location", "state"],
+    contact: ["contact", "contact name", "name"],
+    title: ["title", "job title"],
+    email: ["email", "email address"],
+    phone: ["phone", "phone number", "phone / mobile"],
+    linkedin: ["linkedin", "linkedin url"],
+    opportunity: ["opportunity", "opportunity name"],
+    stage: ["stage", "status", "lead status"],
+    source: ["source"],
+    lastOutreach: ["last outreach", "last outreach date", "last contact"],
+    nextFollowUp: ["next follow-up", "next follow up", "next followup", "follow up date", "next follow up date"],
+    notes: ["notes", "note"]
+  };
+  var BULK_STAGE_ALIASES = {
+    "prospecting": "prospecting", "new": "prospecting", "prospect": "prospecting", "not started": "prospecting",
+    "contacted": "contacted", "in progress": "contacted", "active": "contacted", "outreach": "contacted",
+    "meeting": "meeting", "meeting scheduled": "meeting", "scheduled": "meeting",
+    "quoting": "quoting", "quoting / sampling": "quoting", "quote": "quoting", "sampling": "quoting",
+    "won": "won", "closed won": "won",
+    "lost": "lost", "closed lost": "lost", "dead": "lost",
+    "hold": "hold", "on hold": "hold", "paused": "hold"
+  };
+
+  function splitDelim(line, delim) {
+    if (delim === "\t") return line.split("\t");
+    var result = [], cur = "", inQuotes = false;
+    for (var i = 0; i < line.length; i++) {
+      var c = line[i];
+      if (inQuotes) {
+        if (c === '"') { if (line[i + 1] === '"') { cur += '"'; i++; } else { inQuotes = false; } }
+        else cur += c;
+      } else {
+        if (c === '"') inQuotes = true;
+        else if (c === delim) { result.push(cur); cur = ""; }
+        else cur += c;
+      }
+    }
+    result.push(cur);
+    return result;
+  }
+
+  function parseBulkLeads(text) {
+    var lines = text.split(/\r\n|\r|\n/).filter(function (l) { return l.trim() !== ""; });
+    if (!lines.length) return [];
+    var delim = lines[0].indexOf("\t") !== -1 ? "\t" : ",";
+    var rows = lines.map(function (l) { return splitDelim(l, delim); });
+
+    var headerCells = rows[0].map(function (c) { return c.trim().toLowerCase(); });
+    var colMap = {}, matches = 0;
+    headerCells.forEach(function (cell, i) {
+      Object.keys(BULK_FIELD_ALIASES).forEach(function (field) {
+        if (BULK_FIELD_ALIASES[field].indexOf(cell) !== -1) { colMap[i] = field; matches++; }
+      });
+    });
+
+    var dataRows;
+    if (matches >= 1) {
+      dataRows = rows.slice(1);
+    } else {
+      colMap = { 0: "customer", 1: "location", 2: "contact", 3: "title", 4: "email", 5: "phone" };
+      dataRows = rows;
+    }
+
+    var parsed = [];
+    dataRows.forEach(function (cells) {
+      if (!cells.length) return;
+      var obj = {};
+      cells.forEach(function (val, i) {
+        var field = colMap[i];
+        if (field) obj[field] = (val || "").trim();
+      });
+      if (!obj.customer) return;
+      if (obj.stage) obj.stage = BULK_STAGE_ALIASES[obj.stage.trim().toLowerCase()] || "prospecting";
+      parsed.push(obj);
+    });
+    return parsed;
+  }
+
+  function updateBulkPreview() {
+    _bulkParsedRows = parseBulkLeads(document.getElementById("bulk-text").value);
+    var el = document.getElementById("bulk-preview");
+    var btn = document.getElementById("bulk-confirm");
+    if (!_bulkParsedRows.length) {
+      el.textContent = "Paste rows above to see a preview.";
+      btn.disabled = true;
+      return;
+    }
+    var sample = _bulkParsedRows.slice(0, 3).map(function (r) {
+      return r.customer + (r.location ? " (" + r.location + ")" : "");
+    }).join(", ");
+    var more = _bulkParsedRows.length > 3 ? " + " + (_bulkParsedRows.length - 3) + " more" : "";
+    el.textContent = "Detected " + _bulkParsedRows.length + " lead" + (_bulkParsedRows.length === 1 ? "" : "s") + ": " + sample + more;
+    btn.disabled = false;
+  }
+
+  function openBulkModal(key) {
+    currentBulkPartner = key;
+    document.getElementById("bulk-modal-title").textContent = "Bulk add leads — " + state.partners[key].name;
+    document.getElementById("bulk-text").value = "";
+    document.getElementById("bulk-stage").value = "prospecting";
+    document.getElementById("bulk-source").value = "Target account list";
+    updateBulkPreview();
+    document.getElementById("bulk-overlay").classList.remove("hidden");
+    document.getElementById("bulk-text").focus();
+  }
+  function closeBulkModal() { document.getElementById("bulk-overlay").classList.add("hidden"); currentBulkPartner = null; }
+
+  // ---- lead modal ----
+  function openLeadModal(partnerKey, leadId) {
+    editingLeadPartner = partnerKey;
+    editingLeadId = leadId;
+    var isNew = !leadId;
+    var l = isNew ? lead({}) : state.partners[partnerKey].leads.find(function (x) { return x.id === leadId; });
+
+    document.getElementById("lead-modal-title").textContent = isNew ? "Add lead — " + state.partners[partnerKey].name : "Edit lead";
+    document.getElementById("f-customer").value = l.customer;
+    document.getElementById("f-location").value = l.location;
+    document.getElementById("f-opportunity").value = l.opportunity;
+    document.getElementById("f-contact").value = l.contact;
+    document.getElementById("f-title").value = l.title;
+    document.getElementById("f-email").value = l.email;
+    document.getElementById("f-phone").value = l.phone;
+    document.getElementById("f-linkedin").value = l.linkedin;
+    document.getElementById("f-stage").value = l.stage;
+    document.getElementById("f-source").value = l.source || "ZoomInfo";
+    document.getElementById("f-last").value = l.lastOutreach;
+    document.getElementById("f-next").value = l.nextFollowUp;
+    document.getElementById("f-notes").value = l.notes;
+    document.getElementById("lead-delete").classList.toggle("hidden", isNew);
+    document.getElementById("lead-overlay").classList.remove("hidden");
+    document.getElementById("f-customer").focus();
+  }
+  function closeLeadModal() { document.getElementById("lead-overlay").classList.add("hidden"); editingLeadId = null; editingLeadPartner = null; }
+
+  document.getElementById("lead-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var partnerKey = editingLeadPartner;
+    var data = {
+      customer: document.getElementById("f-customer").value.trim(),
+      location: document.getElementById("f-location").value.trim(),
+      opportunity: document.getElementById("f-opportunity").value.trim(),
+      contact: document.getElementById("f-contact").value.trim(),
+      title: document.getElementById("f-title").value.trim(),
+      email: document.getElementById("f-email").value.trim(),
+      phone: document.getElementById("f-phone").value.trim(),
+      linkedin: document.getElementById("f-linkedin").value.trim(),
+      stage: document.getElementById("f-stage").value,
+      source: document.getElementById("f-source").value,
+      lastOutreach: document.getElementById("f-last").value,
+      nextFollowUp: document.getElementById("f-next").value,
+      notes: document.getElementById("f-notes").value.trim()
+    };
+    if (!data.customer) return;
+    var leads = state.partners[partnerKey].leads;
+    if (editingLeadId) {
+      var idx = leads.findIndex(function (x) { return x.id === editingLeadId; });
+      leads[idx] = Object.assign({}, leads[idx], data);
+    } else {
+      leads.push(lead(Object.assign({ id: uid() }, data)));
+    }
+    save(); closeLeadModal(); renderAll();
+  });
+  document.getElementById("lead-cancel").addEventListener("click", closeLeadModal);
+  document.getElementById("lead-close").addEventListener("click", closeLeadModal);
+  document.getElementById("lead-delete").addEventListener("click", function () {
+    if (!editingLeadId) return;
+    var leadIdToDelete = editingLeadId;
+    var partnerKeyForDelete = editingLeadPartner;
+    customConfirm("Delete this lead? This can't be undone.", function () {
+      var leads = state.partners[partnerKeyForDelete].leads;
+      var idx = leads.findIndex(function (x) { return x.id === leadIdToDelete; });
+      if (idx > -1) leads.splice(idx, 1);
+      save(); closeLeadModal(); renderAll();
+      showToast("Lead deleted.");
+    });
+  });
+
+  // ---- partner modal ----
+  function openPartnerModal(key) {
+    editingPartnerKey = key;
+    var isNew = !key;
+    var p = isNew ? { name: "", website: "", region: "", blurb: "", certs: [] } : state.partners[key];
+    document.getElementById("partner-modal-title").textContent = isNew ? "Add partner" : "Edit " + p.name;
+    document.getElementById("p-name").value = p.name;
+    document.getElementById("p-website").value = p.website;
+    document.getElementById("p-region").value = p.region;
+    document.getElementById("p-blurb").value = p.blurb;
+    document.getElementById("p-certs").value = (p.certs || []).join(", ");
+    document.getElementById("partner-delete").classList.toggle("hidden", isNew);
+    document.getElementById("partner-overlay").classList.remove("hidden");
+    document.getElementById("p-name").focus();
+  }
+  function closePartnerModal() { document.getElementById("partner-overlay").classList.add("hidden"); editingPartnerKey = null; }
+
+  document.getElementById("partner-form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var name = document.getElementById("p-name").value.trim();
+    if (!name) return;
+    var data = {
+      name: name,
+      website: document.getElementById("p-website").value.trim(),
+      region: document.getElementById("p-region").value.trim(),
+      blurb: document.getElementById("p-blurb").value.trim(),
+      certs: document.getElementById("p-certs").value.split(",").map(function (s) { return s.trim(); }).filter(Boolean)
+    };
+    if (editingPartnerKey) {
+      state.partners[editingPartnerKey] = Object.assign({}, state.partners[editingPartnerKey], data);
+    } else {
+      var key = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "") || uid();
+      if (state.partners[key]) key = key + "-" + uid();
+      state.partners[key] = Object.assign({ leads: [] }, data);
+      state.order.push(key);
+      activeKey = key;
+    }
+    save(); closePartnerModal(); renderAll();
+  });
+  document.getElementById("partner-cancel").addEventListener("click", closePartnerModal);
+  document.getElementById("partner-close").addEventListener("click", closePartnerModal);
+  document.getElementById("partner-delete").addEventListener("click", function () {
+    if (!editingPartnerKey) return;
+    var p = state.partners[editingPartnerKey];
+    var keyToDelete = editingPartnerKey;
+    var msg = p.leads.length
+      ? "Delete " + p.name + " and its " + p.leads.length + " lead(s)? This can't be undone."
+      : "Delete " + p.name + "?";
+    customConfirm(msg, function () {
+      delete state.partners[keyToDelete];
+      state.order = state.order.filter(function (k) { return k !== keyToDelete; });
+      activeKey = "overview";
+      save(); closePartnerModal(); renderAll();
+      showToast("Partner deleted.");
+    });
+  });
+
+  // ---- export / import ----
+  document.getElementById("btn-export").addEventListener("click", function () {
+    var blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "epc-partner-tracker-" + new Date().toISOString().slice(0, 10) + ".json";
+    document.body.appendChild(a); a.click(); a.remove();
+  });
+  document.getElementById("btn-import").addEventListener("click", function () { document.getElementById("file-import").click(); });
+  document.getElementById("file-import").addEventListener("change", function (e) {
+    var file = e.target.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function () {
+      var parsed;
+      try {
+        parsed = JSON.parse(reader.result);
+        if (!parsed.partners || !parsed.order) throw new Error("bad shape");
+      } catch (err) {
+        showToast("Couldn't read " + file.name + " — make sure it's a JSON export from this tool.", true);
+        e.target.value = "";
+        return;
+      }
+      var leadTotal = Object.keys(parsed.partners).reduce(function (n, k) { return n + (parsed.partners[k].leads || []).length; }, 0);
+      customConfirm("Import " + file.name + " (" + parsed.order.length + " partners, " + leadTotal + " leads)? This replaces everything currently in this browser.", function () {
+        state = parsed; save(); activeKey = "overview"; renderAll();
+        showToast("Imported " + file.name + ".");
+      });
+      e.target.value = "";
+    };
+    reader.readAsText(file);
+  });
+
+  document.getElementById("bulk-text").addEventListener("input", updateBulkPreview);
+  document.getElementById("bulk-cancel").addEventListener("click", closeBulkModal);
+  document.getElementById("bulk-close").addEventListener("click", closeBulkModal);
+  document.getElementById("bulk-overlay").addEventListener("click", function (e) { if (e.target === this) closeBulkModal(); });
+  document.getElementById("bulk-confirm").addEventListener("click", function () {
+    if (!currentBulkPartner || !_bulkParsedRows.length) return;
+    var defStage = document.getElementById("bulk-stage").value;
+    var defSource = document.getElementById("bulk-source").value;
+    var leads = state.partners[currentBulkPartner].leads;
+    var n = _bulkParsedRows.length;
+    _bulkParsedRows.forEach(function (row) {
+      leads.push(lead(Object.assign({ stage: defStage, source: defSource }, row)));
+    });
+    save(); closeBulkModal(); renderAll();
+    showToast("Added " + n + " lead" + (n === 1 ? "" : "s") + ".");
+  });
+
+  document.getElementById("confirm-ok").addEventListener("click", function () {
+    var cb = _confirmCallback;
+    closeConfirm();
+    if (cb) cb();
+  });
+  document.getElementById("confirm-cancel").addEventListener("click", closeConfirm);
+  document.getElementById("confirm-overlay").addEventListener("click", function (e) { if (e.target === this) closeConfirm(); });
+
+  // overlay click-outside to close
+  document.getElementById("lead-overlay").addEventListener("click", function (e) { if (e.target === this) closeLeadModal(); });
+  document.getElementById("partner-overlay").addEventListener("click", function (e) { if (e.target === this) closePartnerModal(); });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") { closeLeadModal(); closePartnerModal(); closeConfirm(); closeBulkModal(); }
+  });
+
+  renderAll();
+})();
+</script>
